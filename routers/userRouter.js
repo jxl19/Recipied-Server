@@ -1,0 +1,59 @@
+const express = require('express');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const bodyParser = require('body-parser');
+const router = express.Router();
+router.use(bodyParser.json());
+const userController = require('../controllers/userController');
+const { Notecard, User } = require('../models');
+
+passport.serializeUser(function (user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+  done(null, user);
+});
+
+
+router.post('/signup', userController.register);
+
+passport.use(new LocalStrategy({
+  usernameField: 'username',
+  passwordField: 'password',
+  passReqToCallback: true
+},
+  function (req, username, password, done) {
+    process.nextTick(function () {
+      User.findOne({ username: username }, function (err, user) {
+        if (err) {
+          return done(err);
+        }
+        if (!user) {
+          return done(null, false, req.flash('error', 'Invalid username or password'));
+        }
+        console.log('password:' + password);
+        console.log('user' + user);
+        console.log('username' + username);
+        console.log('req' + req.body);
+        if (user.validatePassword(password)) {
+          console.log('password1:' + password);
+          return done(null, user);
+        }
+        else if (!user.validatePassword(password)) {
+          return done(null, false, req.flash('error', 'Invalid username or password'));
+        }
+      });
+    })
+  }
+))
+
+router.post('/login',
+  passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/login',
+    failureFlash: true
+  })
+);
+
+module.exports = router;

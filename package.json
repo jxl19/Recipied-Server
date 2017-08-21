@@ -1,0 +1,37 @@
+{
+  "name": "recipe-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.17.1",
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0",
+    "connect-flash": "^0.1.1",
+    "connect-mongo": "^1.3.2",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.4",
+    "es6-promisify": "^5.0.0",
+    "express": "^4.15.4",
+    "express-session": "^1.15.2",
+    "express-validator": "^3.2.0",
+    "faker": "^4.1.0",
+    "md5": "^2.2.1",
+    "mocha": "^3.3.0",
+    "mongoose": "^4.9.6",
+    "mongoose-mongodb-errors": "0.0.2",
+    "morgan": "^1.8.1",
+    "passport": "^0.3.2",
+    "passport-email": "0.0.3",
+    "passport-http": "^0.3.0",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^4.0.0",
+    "validator": "^7.0.0"
+  }
+}
