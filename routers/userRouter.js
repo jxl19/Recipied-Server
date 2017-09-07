@@ -5,7 +5,16 @@ const bodyParser = require('body-parser');
 const router = express.Router();
 router.use(bodyParser.json());
 const userController = require('../controllers/userController');
-const { Notecard, User } = require('../models');
+const { Recipe, User } = require('../models');
+
+const {
+  // Assigns the Strategy export to the name JwtStrategy using object
+  // destructuring
+  // https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Assigning_to_new_variable_names
+  Strategy: JwtStrategy,
+  ExtractJwt
+} = require('passport-jwt');
+const { JWT_SECRET } = require('../config');
 
 passport.serializeUser(function (user, done) {
   done(null, user);
@@ -14,7 +23,6 @@ passport.serializeUser(function (user, done) {
 passport.deserializeUser(function (user, done) {
   done(null, user);
 });
-
 
 router.post('/signup', userController.register);
 
@@ -41,6 +49,7 @@ passport.use(new LocalStrategy({
           return done(null, user);
         }
         else if (!user.validatePassword(password)) {
+          console.log('failed');
           return done(null, false, req.flash('error', 'Invalid username or password'));
         }
       });
@@ -50,10 +59,14 @@ passport.use(new LocalStrategy({
 
 router.post('/login',
   passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/login',
-    failureFlash: true
-  })
-);
+    failureFlash: true,
+    failureRedirect: '/failed'
+  }), (req, res) => {
+    if (req.user) {
+      res.end(JSON.stringify({
+        status: true
+      })
+    )}
+});
 
 module.exports = router;

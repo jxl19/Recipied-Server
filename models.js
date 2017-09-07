@@ -40,6 +40,8 @@ userSchema.methods.apiRepr = function () {
 userSchema.plugin(mongodbErrorHandler);
 const User = mongoose.model('User', userSchema);
 
+//add steps to recipeschema
+
 const recipeSchema = mongoose.Schema({
   username: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   dishName: {type: String, required: true},
