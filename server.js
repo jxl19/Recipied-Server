@@ -16,6 +16,47 @@ const userRouter = require('./routers/userRouter');
 const recipeRouter = require('./routers/recipeRouter');
 const userController = require('./controllers/userController');
 mongoose.Promise = global.Promise;
+// const {LocalStrategy, jwtStrategy} = require('./routers/userRouter');
+const config = require('./config');
+
+var JwtStrategy = require('passport-jwt').Strategy,
+ExtractJwt = require('passport-jwt').ExtractJwt;
+
+// const jwtStrategy = new JwtStrategy({
+//   secretOrKey: config.JWT_SECRET,
+//   // Look for the JWT as a Bearer auth header
+//   jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('Bearer'),
+//   // Only allow HS256 tokens - the same as the ones we issue
+//   algorithms: ['HS256']
+// },
+// (payload, done) => {
+//   done(null, payload.user)
+// }
+// );
+var JwtStrategy = require('passport-jwt').Strategy,
+ExtractJwt = require('passport-jwt').ExtractJwt;
+var jwtOptions = {};
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderWithScheme('jwt');
+jwtOptions.secretOrKey = config.JWT_SECRET;
+
+passport.use(new JwtStrategy(jwtOptions, (jwt_payload, done) => {
+  console.log(jwy_payload.user.id + "userid");
+  console.log(jwt_payload);
+
+User.findOne({ id: jwt_payload.user.id }, function (err, user) {
+    if (err) {
+        return done(err, false);
+    }
+    if (user) {
+        done(null, user);
+    } else {
+        done(null, false);
+        // or you could create a new account 
+    }
+});
+}, (e) => console.log(e)));
+
+// passport.use(jwtStrategy)
 
 app.use(morgan('common'));
 app.use(express.static('public'));
@@ -51,13 +92,17 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-app.get('/api/protected',
-passport.authenticate('jwt', {session: false}),
-(req, res) => {
-    return res.json({
-        data: 'rosebud'
-    });
+app.get("/secret", passport.authenticate('jwt', { session: false }), function(req, res){
+  res.json("Success! You can not see this without a token");
 });
+
+// app.get('/api/protected',
+// passport.authenticate('jwt', {session: false}),
+// (req, res) => {
+//     return res.json({
+//         data: 'rosebud'
+//     });
+// });
 
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
@@ -68,9 +113,9 @@ function ensureAuthenticated(req, res, next) {
     res.redirect('/');
   }
 }
-app.get('/failed', (req, res) => {
-  res.json({status:false});
-})
+// app.get('/failed', (req, res) => {
+//   res.json({status:false});
+// })
 app.use('/api/users', userRouter);
 app.use('/api/recipes', recipeRouter); 
 // app.get('/notecard',ensureAuthenticated,(req, res) => {
