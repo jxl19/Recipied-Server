@@ -63,12 +63,14 @@ const createAuthToken = user => {
 
 router.post('/login',
   passport.authenticate('local', {
+    session:true,
     failureFlash: true,
     failureRedirect: '/failed'
   }), (req, res) => {
     console.log("login: "+  req.user);
     const authToken = createAuthToken(req.user.apiRepr());
     res.json({authToken});
+    console.log('amihere')
 });
 
 module.exports = router;

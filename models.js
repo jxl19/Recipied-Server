@@ -40,33 +40,34 @@ userSchema.methods.apiRepr = function () {
 userSchema.plugin(mongodbErrorHandler);
 const User = mongoose.model('User', userSchema);
 
-//add steps to recipeschema
+//add steps to recipeschema, imgurl
 
 const recipeSchema = mongoose.Schema({
   username: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   dishName: {type: String, required: true},
-  nutritionLabels: {
-      calories: {type:Number},
-      fat: {type: Number},
-      satFat: {type: Number},
-      transFat: {type: Number},
-      figer: {type: Number},
-      sugar: {type: Number}
-  },
-  ingredients: {type: String, required: true},
-  dietLabels: {type: String},
-  healthLabels: {type: String},
+  calories: {type:Number},
+  ingredients: {type: Array, required: true},
+  steps: {type: Array},
+  image: {type: String}
 });
+
+recipeSchema.methods.homePageRes = function () {
+  return {
+    id: this._id,
+    dishName: this.dishName,
+    ingredients: this.ingredients
+  }
+}
 
 recipeSchema.methods.apiResponse = function () {
   return {
     id: this._id,
     username: this.username,
     dishName: this.dishName,
-    nutritionLabels: this.nutritionLabels,
     ingredients: this.ingredients,
-    dietLabels: this.dietLabels,
-    healthLabels: this.healthLabels
+    calories: this.calories,
+    steps: this.steps,
+    image: this.image
   }
 }
 

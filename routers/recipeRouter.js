@@ -6,12 +6,40 @@ mongoose.Promise = global.Promise;
 const { Recipe } = require('../models');
 router.use(bodyParser.json());
 
+let currentUser;
+
+//dispatch this in the frontend when we load up the page
+router.get('/user', (req, res) => {
+    console.log("user: " +  req.user);
+    console.log("session" + req.session);
+    if (req.user && req.user._id) {
+        currentUser = req.user._id;
+        console.log("userID: " + req.session.passport.user._id);
+        console.log("requserid: " + req.user._id);
+    }
+    Recipe
+    .find({username: currentUser})
+    .exec()
+    .then(recipe => {
+        console.log(recipe);
+        res.send(recipe)
+    })
+    
+})
+
 router.get('/get/:dishName', (req, res) => {
+
+    if (req.session && req.user && req.user._id) {
+        currentUser = req.user._id;
+        console.log("userID: " + req.session.passport.user._id);
+        console.log("requserid: " + req.user._id);
+    }
 
     Recipe
         .find({ dishName: req.params.dishName })
         .exec()
         .then(recipe => {
+            console.log("recipe: " + recipe);
             res.send(recipe);
         })
         .catch(err => {
@@ -20,7 +48,40 @@ router.get('/get/:dishName', (req, res) => {
         })
 });
 
+router.get('/all', (req, res) => {
+    Recipe
+    .find()
+        .exec()
+        .then(recipes => {
+            console.log("username: " + recipes.username);
+            res.status(200).json(recipes.map(recipes => recipes.homePageRes()));   
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ error: 'Internal server error' });
+        });
+})
+
+router.get('/id/:id', (req, res ) => {
+    Recipe
+    .find({_id: req.params.id})
+    .exec()
+    .then(recipe => {
+        console.log(recipe);
+        res.send(recipe)
+    })
+    .catch(err => {
+        console.error(err);
+        res.status(500).json({error: 'Internal server error'});
+    })
+})
+
 router.post('/', (req, res) => {
+    if (req.session && req.user && req.user._id) {
+        currentUser = req.user._id;
+        console.log("userID: " + req.session.passport.user._id);
+        console.log("requserid: " + req.user._id);
+    }
     console.log(req.body);
     //validate required fields
     const requiredFields = ['dishName', 'ingredients'];
@@ -32,12 +93,14 @@ router.post('/', (req, res) => {
         }
     })
     Recipe
+    //userid prob more appropriate than username since it returns an id
         .create({
+            username: currentUser,
             dishName: req.body.dishName,
-            nutritionLabels: req.body.nutritionLabels,
             ingredients: req.body.ingredients,
-            dietLabels: req.body.dietLabels,
-            healthLabels: req.body.healthLabels
+            calories: req.body.calories,
+            steps: req.body.steps,
+            image: req.body.image
         })
         .then(recipe => {
             res.status(201).json(recipe.apiResponse());
