@@ -41,7 +41,8 @@ userSchema.plugin(mongodbErrorHandler);
 const User = mongoose.model('User', userSchema);
 
 //add steps to recipeschema, imgurl
-
+//upload img with an id
+//takes name of img and send img data back to client,
 const recipeSchema = mongoose.Schema({
   username: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   dishName: {type: String, required: true},

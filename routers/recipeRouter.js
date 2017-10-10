@@ -75,7 +75,8 @@ router.get('/id/:id', (req, res ) => {
         res.status(500).json({error: 'Internal server error'});
     })
 })
-
+//update post req to take in 
+//req.body.img should be a string that holds the id of the photo
 router.post('/', (req, res) => {
     if (req.session && req.user && req.user._id) {
         currentUser = req.user._id;
@@ -93,7 +94,6 @@ router.post('/', (req, res) => {
         }
     })
     Recipe
-    //userid prob more appropriate than username since it returns an id
         .create({
             username: currentUser,
             dishName: req.body.dishName,
@@ -111,6 +111,8 @@ router.post('/', (req, res) => {
         });
 });
 
+// update put to have the other fields
+// username, dishName, ingredients, calories, steps, image
 router.put('/:id', (req, res) => {
     console.log(req.body._id);
     console.log(req.params.id);
@@ -121,7 +123,7 @@ router.put('/:id', (req, res) => {
         console.error(message);
         return res.status(400).send(message);
     }
-    const updateFields = ['dishName', 'ingredients'];
+    const updateFields = ['dishName', 'ingredients', 'calories', 'steps', 'image'];
     const updateRecipe = {};
     updateFields.forEach(field => {
         if (field in req.body) {

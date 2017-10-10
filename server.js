@@ -16,6 +16,10 @@ const userRouter = require('./routers/userRouter');
 const recipeRouter = require('./routers/recipeRouter');
 const userController = require('./controllers/userController');
 mongoose.Promise = global.Promise;
+var multer = require('multer');
+var path = require('path');
+var fs = require('fs');
+const uuidv4 = require('uuid/v4');
 
 const config = require('./config');
 var JwtStrategy = require('passport-jwt').Strategy,
@@ -82,6 +86,23 @@ app.use(flash());
 app.get("/secret", passport.authenticate('jwt', { session: false }), function(req, res){
   res.json("Success! You can not see this without a token");
 });
+
+// add uuid to img, store that id in db
+const storage = multer.diskStorage({
+  destination: './uploads',
+  filename(req, file, cb) {
+    console.log("filename: " + file.originalname);
+    const id = uuidv4();
+    cb(null, `${id}${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage });
+
+app.post('/api/upload', upload.single('file'), function(req, res) {
+  console.log(req.file);
+  res.end('ok');
+})
 
 app.get('/failed', (req, res) => {
   res.json({status:false});
