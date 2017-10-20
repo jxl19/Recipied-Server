@@ -19,7 +19,7 @@ passport.deserializeUser(function (user, done) {
 });
 
 router.post('/signup', userController.register);
-
+router.get('/logout', userController.logout);
 const {
   // Assigns the Strategy export to the name JwtStrategy using object
   // destructuring
@@ -63,13 +63,13 @@ const createAuthToken = user => {
 
 router.post('/login',
   passport.authenticate('local', {
-    session:true,
     failureFlash: true,
     failureRedirect: '/failed'
   }), (req, res) => {
-    console.log("login: "+  req.user);
+    console.log("session: "+ req.session.passport.user._id);
+    // console.log("login: "+  req.user);
     const authToken = createAuthToken(req.user.apiRepr());
-    res.json({authToken});
+    res.json({authToken: authToken, user: req.user._id});
     console.log('amihere')
 });
 

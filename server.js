@@ -87,22 +87,45 @@ app.get("/secret", passport.authenticate('jwt', { session: false }), function(re
   res.json("Success! You can not see this without a token");
 });
 
-// add uuid to img, store that id in db
-const storage = multer.diskStorage({
-  destination: './uploads',
-  filename(req, file, cb) {
+const storage = 
+multer.diskStorage({
+    destination: './uploads',
+    filename(req, file, cb) {
+    id = uuidv4();
+    req.imageid = id;
     console.log("filename: " + file.originalname);
-    const id = uuidv4();
-    cb(null, `${id}${file.originalname}`);
+    cb(null, `${id}.jpg`);
   },
 });
 
 const upload = multer({ storage });
-
 app.post('/api/upload', upload.single('file'), function(req, res) {
-  console.log(req.file);
-  res.end('ok');
+  console.log(req.imageid);
+  res.header("Access-Control-Allow-Origin", "*");
+  res.end(JSON.stringify({imageid : req.imageid}));
 })
+
+app.get('/api/file/:id', function (req, res, next) {
+  
+    var options = {
+      root: __dirname + '/uploads/',
+      dotfiles: 'deny',
+      headers: {
+          'x-timestamp': Date.now(),
+          'x-sent': true
+      }
+    };
+  
+    var fileName = req.params.id + '.jpg';
+    res.sendFile(fileName, options, function (err) {
+      if (err) {
+        next(err);
+      } else {
+        console.log('Sent:', fileName);
+      }
+    });
+  
+  });
 
 app.get('/failed', (req, res) => {
   res.json({status:false});

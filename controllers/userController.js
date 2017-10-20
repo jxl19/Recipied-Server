@@ -49,5 +49,5 @@ exports.register = (req, res) => {
 exports.logout = (req, res) => {
     req.logout();
     req.session.destroy();
-    res.redirect('/');
+    res.send('signed off');
 }

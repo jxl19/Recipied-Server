@@ -8,25 +8,6 @@ router.use(bodyParser.json());
 
 let currentUser;
 
-//dispatch this in the frontend when we load up the page
-router.get('/user', (req, res) => {
-    console.log("user: " +  req.user);
-    console.log("session" + req.session);
-    if (req.user && req.user._id) {
-        currentUser = req.user._id;
-        console.log("userID: " + req.session.passport.user._id);
-        console.log("requserid: " + req.user._id);
-    }
-    Recipe
-    .find({username: currentUser})
-    .exec()
-    .then(recipe => {
-        console.log(recipe);
-        res.send(recipe)
-    })
-    
-})
-
 router.get('/get/:dishName', (req, res) => {
 
     if (req.session && req.user && req.user._id) {
@@ -62,6 +43,18 @@ router.get('/all', (req, res) => {
         });
 })
 
+router.get('/user/:id', (req, res) => {
+
+    currentUser = req.params.id;
+    Recipe
+    .find({username: currentUser})
+    .exec()
+    .then(recipe => {
+        console.log(recipe);
+        res.send(recipe);
+    })
+})
+
 router.get('/id/:id', (req, res ) => {
     Recipe
     .find({_id: req.params.id})
@@ -75,8 +68,7 @@ router.get('/id/:id', (req, res ) => {
         res.status(500).json({error: 'Internal server error'});
     })
 })
-//update post req to take in 
-//req.body.img should be a string that holds the id of the photo
+
 router.post('/', (req, res) => {
     if (req.session && req.user && req.user._id) {
         currentUser = req.user._id;
@@ -103,6 +95,7 @@ router.post('/', (req, res) => {
             image: req.body.image
         })
         .then(recipe => {
+            console.log(recipe.apiResponse());
             res.status(201).json(recipe.apiResponse());
         })
         .catch(err => {
