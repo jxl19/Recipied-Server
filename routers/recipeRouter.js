@@ -70,6 +70,9 @@ router.get('/id/:id', (req, res ) => {
 })
 
 router.post('/', (req, res) => {
+    console.log("session: " + req.session);
+    currentUser = req.body.userid;
+    console.log(currentUser);
     if (req.session && req.user && req.user._id) {
         currentUser = req.user._id;
         console.log("userID: " + req.session.passport.user._id);
@@ -107,6 +110,7 @@ router.post('/', (req, res) => {
 // update put to have the other fields
 // username, dishName, ingredients, calories, steps, image
 router.put('/:id', (req, res) => {
+    console.log(req.body);
     console.log(req.body._id);
     console.log(req.params.id);
     if (req.params.id !== req.body._id) {
