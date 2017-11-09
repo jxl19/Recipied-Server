@@ -1,6 +1,7 @@
 exports.DATABASE_URL =  process.env.DATABASE_URL ||
                         process.env.MONGODB_URI ||
-                        'mongodb://localhost/recipe-server';
+                        'mongodb://localhost/recipe-server'||
+                        'mongodb://jylei:pw123@ds151955.mlab.com:51955/reciped';
 exports.TEST_DATABASE_URL =  process.env.TEST_DATABASE_URL ||
                             'mongodb://localhost/test-recipe-app';
 exports.PORT = process.env.PORT || 8080;
