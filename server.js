@@ -97,7 +97,7 @@ multer.diskStorage({
     cb(null, `${id}.jpg`);
   },
 });
-
+//we can grab .jpg here?
 const upload = multer({ storage });
 app.post('/api/upload', upload.single('file'), function(req, res) {
   console.log(req.imageid);
@@ -105,6 +105,7 @@ app.post('/api/upload', upload.single('file'), function(req, res) {
   res.end(JSON.stringify({imageid : req.imageid}));
 })
 
+//need to update to reflect correct filenames, not only jpg
 app.get('/api/file/:id', function (req, res, next) {
   
     var options = {

@@ -63,11 +63,9 @@ const createAuthToken = user => {
 
 router.post('/login',
   passport.authenticate('local', {
-    failureFlash: true,
+    failureFlash: 'Invalid username or password.',
     failureRedirect: '/failed'
-  }), (req, res) => {
-    console.log("session: "+ req.session.passport.user._id);
-    // console.log("login: "+  req.user);
+  }), (req, res, info) => {
     const authToken = createAuthToken(req.user.apiRepr());
     res.json({authToken: authToken, user: req.user._id});
     console.log('amihere')
