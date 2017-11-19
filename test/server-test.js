@@ -87,7 +87,7 @@ describe('recipe API', function () {
                         return Recipe.findById(resRecipe.id);
                     })
                     .then(recipe => {
-                        resRecipe.dishName.should.equal(recipe.dishName);
+                        resRecipe.dishName.toLowerCase().should.equal(recipe.dishName);
                         resRecipe.ingredients.should.be.an('array');
                     });
             });
@@ -106,13 +106,13 @@ describe('recipe API', function () {
                         res.should.be.a('object');
                         res.body.should.include.keys(expectedKeys);
                         res.body.id.should.not.be.null;
-                        res.body.dishName.should.equal(newRecipe.dishName);
+                        res.body.dishName.toLowerCase().should.equal(newRecipe.dishName);
                         res.body.calories.should.equal(newRecipe.calories);
                         res.body.image.should.equal(newRecipe.image);
                         return Recipe.findById(res.body.id);
                     })
                     .then(recipe => {
-                        recipe.dishName.should.equal(newRecipe.dishName);
+                        recipe.dishName.toLowerCase().should.equal(newRecipe.dishName);
                         recipe.calories.should.equal(newRecipe.calories);
                         recipe.image.should.equal(newRecipe.image);
                     });
@@ -139,7 +139,7 @@ describe('recipe API', function () {
                         res.should.have.status(200);
                         res.should.be.json;
                         res.should.be.a('object');
-                        res.body.dishName.should.equal(updatedData.dishName);
+                        res.body.dishName.toLowerCase().should.equal(updatedData.dishName);
                         res.body.calories.should.equal(updatedData.calories);
                         res.body.image.should.equal(updatedData.image);
                         return Recipe.findById(updatedData._id).exec();
