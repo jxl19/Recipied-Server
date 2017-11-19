@@ -21,7 +21,7 @@ router.get('/get/:dishName', (req, res) => {
         .exec()
         .then(recipe => {
             console.log("recipe: " + recipe);
-            res.send(recipe);
+            res.status(200).json(recipe.map(recipe => recipe.apiResponse()));   
         })
         .catch(err => {
             console.error(err);
@@ -49,10 +49,14 @@ router.get('/user/:id', (req, res) => {
     Recipe
     .find({username: currentUser})
     .exec()
-    .then(recipe => {
-        console.log(recipe);
-        res.send(recipe);
+    .then(recipes => {
+        console.log("username: " + recipes.username);
+        res.status(200).json(recipes.map(recipes => recipes.homePageRes()));   
     })
+    .catch(err => {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    });
 })
 
 router.get('/id/:id', (req, res ) => {

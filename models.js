@@ -53,18 +53,21 @@ const recipeSchema = mongoose.Schema({
 });
 
 recipeSchema.methods.homePageRes = function () {
+  //caps first letter of every word
+  var dish = this.dishName.toLowerCase().replace(/(^| )(\w)/g, s => s.toUpperCase());
   return {
     id: this._id,
-    dishName: this.dishName,
+    dishName: dish,
     ingredients: this.ingredients
   }
 }
 
 recipeSchema.methods.apiResponse = function () {
+  var dish = this.dishName.toLowerCase().replace(/(^| )(\w)/g, s => s.toUpperCase());
   return {
     id: this._id,
     username: this.username,
-    dishName: this.dishName,
+    dishName: dish,
     ingredients: this.ingredients,
     calories: this.calories,
     steps: this.steps,
