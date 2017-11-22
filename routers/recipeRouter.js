@@ -15,17 +15,22 @@ router.get('/get/:dishName', (req, res) => {
         console.log("userID: " + req.session.passport.user._id);
         console.log("requserid: " + req.user._id);
     }
-
+    let resultsArray = [];
     Recipe
-        .find({ dishName: req.params.dishName })
+        .find()
         .exec()
-        .then(recipe => {
-            console.log("recipe: " + recipe);
-            res.status(200).json(recipe.map(recipe => recipe.apiResponse()));   
+        .then(recipes => {
+            for (var i = 0; i < recipes.length; i++) {
+                var recipe = recipes[i];
+                if (recipe.dishName && recipe.dishName.toLowerCase().includes(req.params.dishName.toLowerCase())) {
+                    resultsArray.push(recipes[i].apiResponse());
+                }
+            }
+            res.json(resultsArray);
         })
         .catch(err => {
             console.error(err);
-            res.status(500).json({ error: 'Something went wrong' });
+            res.status(500).json({ error: 'Internal Server Error' });
         })
 });
 
