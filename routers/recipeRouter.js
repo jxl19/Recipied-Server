@@ -37,6 +37,7 @@ router.get('/get/:dishName', (req, res) => {
 router.get('/all', (req, res) => {
     Recipe
     .find()
+    .limit(5)
         .exec()
         .then(recipes => {
             console.log("username: " + recipes.username);

@@ -95,15 +95,16 @@ var upload = multer({
     },
     key: function (req, file, cb) {
       id = uuidv4();
+      req.imageid = id + path.extname(file.originalname);
       var fileName = id +  path.extname(file.originalname);
-      console.log(fileName);
       cb(null, fileName)
     }
   })
 })
 
 app.post('/api/upload', upload.single('file'), function(req, res, next) {
-  res.send('Successfully uploaded file!')
+  res.header("Access-Control-Allow-Origin", "*");
+  res.end(JSON.stringify({imageid : req.imageid}));
 })
 
 app.get("/secret", passport.authenticate('jwt', { session: false }), function(req, res){
