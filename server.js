@@ -10,7 +10,7 @@ const MongoStore = require('connect-mongo')(session);
 const flash = require('connect-flash');
 const app = express();
 var cors = require('cors');
-const {PORT, DATABASE_URL, CLIENT_ORIGIN} = require('./config.js');
+const {PORT, DATABASE_URL, CLIENT_ORIGIN, ACCESS_KEY_ID, SECRET_ACCESS_KEY} = require('./config.js');
 const {User} = require('./models')
 const userRouter = require('./routers/userRouter');
 const recipeRouter = require('./routers/recipeRouter');
@@ -20,7 +20,8 @@ var multer = require('multer');
 var path = require('path');
 var fs = require('fs');
 const uuidv4 = require('uuid/v4');
-
+var aws = require('aws-sdk');
+var multerS3 = require('multer-s3');
 const config = require('./config');
 var JwtStrategy = require('passport-jwt').Strategy,
 ExtractJwt = require('passport-jwt').ExtractJwt;
@@ -28,23 +29,24 @@ var jwtOptions = {};
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderWithScheme('jwt');
 jwtOptions.secretOrKey = config.JWT_SECRET;
 
+var s3 = new aws.S3({
+  accessKeyId: ACCESS_KEY_ID,
+  secretAccessKey: SECRET_ACCESS_KEY
+})
+
 passport.use(new JwtStrategy(jwtOptions, (jwt_payload, done) => {
   console.log("userid: " + jwt_payload.user.id);
   console.log(jwt_payload);
 
 User.findOne({ id: jwt_payload.user.id }, function (err, user) {
     if (err) {
-      console.log('err: ' + err)
         return done(err, false);
     }
     var user = jwt_payload.user.id;
     if (user) {
-      console.log('inside user: ' + user)
         done(null, user);
     } else {
-      console.log('else');
         done(null, false);
-        // or you could create a new account 
     }
 });
 }, (e) => console.log(e)));
@@ -83,50 +85,30 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
+var upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: 'recipied/uploads',
+    acl: 'public-read',
+    metadata: function (req, file, cb) {
+      cb(null, {fieldName: file.fieldname});
+    },
+    key: function (req, file, cb) {
+      id = uuidv4();
+      var fileName = id +  path.extname(file.originalname);
+      console.log(fileName);
+      cb(null, fileName)
+    }
+  })
+})
+
+app.post('/api/upload', upload.single('file'), function(req, res, next) {
+  res.send('Successfully uploaded file!')
+})
+
 app.get("/secret", passport.authenticate('jwt', { session: false }), function(req, res){
   res.json("Success! You can not see this without a token");
 });
-
-const storage = 
-multer.diskStorage({
-    destination: './uploads',
-    filename(req, file, cb) {
-    id = uuidv4();
-    req.imageid = id;
-    console.log("filename: " + file.originalname);
-    cb(null, `${id}.jpg`);
-  },
-});
-//we can grab .jpg here?
-const upload = multer({ storage });
-app.post('/api/upload', upload.single('file'), function(req, res) {
-  console.log(req.imageid);
-  res.header("Access-Control-Allow-Origin", "*");
-  res.end(JSON.stringify({imageid : req.imageid}));
-})
-
-//need to update to reflect correct filenames, not only jpg
-app.get('/api/file/:id', function (req, res, next) {
-  
-    var options = {
-      root: __dirname + '/uploads/',
-      dotfiles: 'deny',
-      headers: {
-          'x-timestamp': Date.now(),
-          'x-sent': true
-      }
-    };
-  
-    var fileName = req.params.id + '.jpg';
-    res.sendFile(fileName, options, function (err) {
-      if (err) {
-        next(err);
-      } else {
-        console.log('Sent:', fileName);
-      }
-    });
-  
-  });
 
 app.get('/failed', (req, res) => {
   res.json({status:false});
