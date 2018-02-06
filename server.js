@@ -68,7 +68,7 @@ app.use(session({
 }));
 
 app.use(cors({
-    origin: CLIENT_ORIGIN
+  credentials: true, origin: true
 }));
 
 app.use(function (req, res, next) {
